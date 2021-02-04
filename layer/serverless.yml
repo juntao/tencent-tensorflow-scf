@@ -1,5 +1,5 @@
 org: secondstate
-app: AIaaS-template
+app: feishu-card
 stage: prod
 
 component: layer

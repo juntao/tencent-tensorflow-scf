@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>AI 推理的云函数</title>
+    <title>Feishu</title>
 
     <link rel="stylesheet" href="./normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" />
     <link rel="stylesheet" href="./index.css" />
@@ -18,23 +18,27 @@
         <a class="ss-github" href="https://github.com/second-state/tencent-tensorflow-scf" target="_blank"></a>
       </header>
 	    
-      <h1>AI 推理 Serverless 应用</h1>
+      <h1>Feishu Greeting Card</h1>
 
       <div class="explanation">
-        <div>让 Serverless 云函数看看你吃了什么？</div>
+        <div>Generate a card picture</div>
       </div>
       <div>
         <img src="./imgs/ai.png" id="img_file" />
         <div id="msg"></div>
       </div>
+      <div>
+	<input type="text" id="theme" placeholder="theme" name="theme" value="1"/>
+	<input type="text" id="from" placeholder="from" name="from"/>
+	<input type="text" id="greeting" placeholder="greeting" name="greeting"/>
+	<input type="text" id="to" placeholder="to" name="to"/>
+      </div>
       <div class="actions">
-        <button onclick="selectFile()">选择图片文件</button>
+        <button onclick="selectFile()">Select a picture</button>
         <input type="file" id="select_file" onchange="fileSelected()" />
-        <button class="master" onclick="identFood()">这是什么食物？</button>
+        <button class="master" onclick="identFood()">Generate a card</button>
       </div>
       <div class="note">
-        <p>请上传一张图片，并进行识别</p>
-        <p>如果没有照片，可以使用我们提供的 <a href="./imgs/hotdogBig.png" target="_blank">hotdog</a> 图片</p>
       </div>
       <div class="external2">
         <a href="" target="_blank"></a>
@@ -51,7 +55,6 @@
         <a href="https://webassembly.org/" target="_blank">WebAssembly</a>
       </div>
       <div class="actions">
-        <button type="button" onclick="document.location='https://tensorflow-demo-0gbniz1314770b82-1302315972.tcloudbaseapp.com/'" class="btn btn-lg btn-block btn-outline-primary">更多 AI 推理函数示例</button>
       </div>
     </section>
 
@@ -106,7 +109,12 @@
           document.querySelector('#msg').innerHTML = '请先选择一张图片'
           return
         }
-        document.querySelector('#msg').innerHTML = '识别中...'
+        document.querySelector('#msg').innerHTML = 'Generating ...'
+
+        var theme = document.querySelector('#theme').value.replace(/,/g,"");
+        var from = document.querySelector('#from').value.replace(/,/g,"");
+        var greeting = document.querySelector('#greeting').value.replace(/,/g,"");
+        var to = document.querySelector('#to').value.replace(/,/g,"");
 
         var reader = new FileReader();
         reader.readAsDataURL(document.querySelector('#select_file').files[0]);
@@ -114,10 +122,11 @@
           $.ajax({
             url: window.env.API_URL,
             type: "post",
-            data : reader.result.split("base64,")[1],
+            data : theme + "," + from + "," + greeting + "," + to + "," + reader.result.split("base64,")[1],
             dataType: "text",
             success: function (data) {
-              document.querySelector('#msg').innerHTML = data;
+		    const img_url = "data:image/png;base64," + data;
+                    $('#img_file').prop('src', img_url);
             },
             error: function(jqXHR, exception){
               var msg = 'Generic error';
